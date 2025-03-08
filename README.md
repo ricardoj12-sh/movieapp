@@ -5,7 +5,7 @@ Una aplicación de películas desarrollada con Flutter, Firebase y la [TMDB API]
 ## Screenshots
 <img src="screenshots/welcome.png" width="260" /> <img src="screenshots/login.png" width="260" /> <img src="screenshots/sign up.png" width="260" />
 <img src="screenshots/home.png" width="260" /> <img src="screenshots/trending.png" width="260" /> <img src="screenshots/details.png" width="260" />
-<img src="screenshots/account.png" width="260" /> <img src="screenshots/watchlist.png" width="260" />
+<img src="screenshots/watchlist.png" width="260" />
 
 ## 🚀 Características
 

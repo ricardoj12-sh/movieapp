@@ -1,0 +1,46 @@
+plugins {
+    id "com.android.application"
+    id "com.google.gms.google-services"  // FlutterFire Configuration
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.example.movies"
+    compileSdk = 34  // Última versión de Android SDK
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17  // Java 17 recomendado
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    defaultConfig {
+        applicationId = "com.example.movies"
+        minSdkVersion 23  // Correcto para Firebase y Google Sign-In
+        targetSdkVersion 34  // Última versión
+        versionCode 1
+        versionName "1.0"
+        
+        multiDexEnabled true  // Agregado para evitar errores en apps con muchas dependencias
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.7.0') 
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-analytics'
+
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+}

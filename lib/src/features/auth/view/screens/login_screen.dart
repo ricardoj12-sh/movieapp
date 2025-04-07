@@ -3,6 +3,7 @@ import 'package:movies/src/features/auth/view/screens/sign_up_screen.dart';
 import 'package:movies/src/features/auth/view/widgets/auth_field.dart';
 import 'package:movies/src/features/auth/view/widgets/auth_button.dart';
 import 'package:movies/src/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:movies/src/core/view/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,36 +27,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void submit() {
+  Future<void> submit() async {
     final isValid = _formKey.currentState!.validate();
-
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
 
     final authViewmodel = ref.read(authViewmodelProvider.notifier);
-    authViewmodel.loginWithEmail(
-      emailController.text,
-      passwordController.text,
+    await authViewmodel.loginWithEmail(
+      emailController.text.trim(),
+      passwordController.text.trim(),
     );
+
+    final userState = ref.read(authViewmodelProvider);
+    if (userState.hasValue && userState.value != null) {
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+          (route) => false,
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authViewmodelProvider);
-
-    ref.listen(
-      authViewmodelProvider,
-      (previous, next) {
-        if (next.hasValue && next.value != null) {
-          WidgetsBinding.instance.scheduleFrameCallback(
-            (_) {
-              Navigator.of(context).pop();
-            },
-          );
-        }
-      },
-    );
 
     return Scaffold(
       appBar: AppBar(),
@@ -67,11 +62,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Welcome back',
-                style: TextStyle(fontSize: 32),
-                textAlign: TextAlign.center,
-              ),
+              const Text('Welcome back', style: TextStyle(fontSize: 32), textAlign: TextAlign.center),
               gapH32,
               const Text('Email'),
               gapH8,
@@ -79,21 +70,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               gapH16,
               const Text('Password'),
               gapH8,
-              AuthField(
-                hintText: 'Password',
-                obscureText: true,
-                controller: passwordController,
-              ),
+              AuthField(hintText: 'Password', obscureText: true, controller: passwordController),
               gapH16,
               AuthButton(
                 onPressed: submit,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 child: authState.when(
-                  data: (user) {
-                    return const Text('Login');
-                  },
-                  error: (error, stackTrace) => const Text('Login'),
+                  data: (_) => const Text('Login'),
+                  error: (_, __) => const Text('Login'),
                   loading: () => SizedBox(
                     width: 20,
                     height: 20,
@@ -111,16 +96,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => const SignupScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const SignupScreen()),
                       );
                     },
                     child: Text(
                       'Sign up',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                     ),
                   )
                 ],
@@ -128,34 +109,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               gapH24,
               Row(
                 children: [
-                  Expanded(
-                    child: Divider(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.5),
-                    ),
-                  ),
+                  Expanded(child: Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'OR',
-                      style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5),
-                      ),
-                    ),
+                    child: Text('OR', style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                   ),
-                  Expanded(
-                    child: Divider(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.5),
-                    ),
-                  ),
+                  Expanded(child: Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                 ],
               ),
               gapH24,
@@ -167,3 +126,5 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
+
+

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/src/core/constants/app_sizes.dart';
 import 'package:movies/src/features/account/view/widgets/favorite_button.dart';
 import 'package:movies/src/features/account/view/widgets/watchlist_button.dart';
@@ -5,8 +7,7 @@ import 'package:movies/src/features/movies/view/widgets/chip.dart';
 import 'package:movies/src/features/movies/view/widgets/movie_slider.dart';
 import 'package:movies/src/features/movies/view/widgets/rating.dart';
 import 'package:movies/src/features/movies/viewmodel/movies_viewmodel.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:movies/src/shared/services/local_history_service.dart'; // ✅ necesario para historial
 
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen(this.movieId, {super.key});
@@ -20,6 +21,9 @@ class MovieDetailsScreen extends ConsumerWidget {
     return movieDetails.when(
       data: (movie) {
         final posterUrl = ref.watch(imageProvider(movie.posterPath));
+
+        // ✅ Guardar en historial local usando el campo `id`
+        localHistoryService.addToHistory(movie.id);
 
         return Scaffold(
           appBar: AppBar(
@@ -79,25 +83,25 @@ class MovieDetailsScreen extends ConsumerWidget {
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    for (final genre in movie.genres)
-                      MyChip(genre)
+                    for (final genre in movie.genres) MyChip(genre),
                   ],
                 ),
                 gapH12,
                 Text(
                   movie.overview,
                   style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.7)),
+                    fontSize: 16,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7),
+                  ),
                 ),
                 gapH24,
                 MovieSlider(
                   title: 'Similar movies',
                   movies: movie.similar,
-                )
+                ),
               ],
             ),
           ),
@@ -105,15 +109,11 @@ class MovieDetailsScreen extends ConsumerWidget {
       },
       loading: () => const Center(
         child: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+          body: Center(child: CircularProgressIndicator()),
         ),
       ),
       error: (error, stackTrace) => Scaffold(
-        body: Center(
-          child: Text(error.toString()),
-        ),
+        body: Center(child: Text(error.toString())),
       ),
     );
   }

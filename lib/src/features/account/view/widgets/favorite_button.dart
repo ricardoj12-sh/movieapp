@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:movies/src/features/account/repository/firestore_repository.dart';
 import 'package:movies/src/features/account/viewmodel/account_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ← aún necesario para el tipo `User`
 
 class FavoriteButton extends ConsumerWidget {
   const FavoriteButton(this.movieId, {super.key});
@@ -12,9 +12,12 @@ class FavoriteButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final firestore = ref.watch(firestoreRepositoryProvider);
-    final userStream = ref.watch(userStreamProvider(
-      FirebaseAuth.instance.currentUser?.uid ?? "",
-    ));
+
+    // ✅ Usamos el provider desacoplado en vez de FirebaseAuth.instance directamente
+    final currentUser = ref.watch(currentUserProvider);
+    final userStream = ref.watch(
+      userStreamProvider(currentUser?.uid ?? ""),
+    );
 
     return userStream.when(
       data: (user) {

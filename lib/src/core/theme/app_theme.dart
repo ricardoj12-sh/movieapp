@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static final themeData = ThemeData(
     fontFamily: 'SF Pro Display',
+    scaffoldBackgroundColor: const Color(0xFF151A29), // ⬅️ añadido
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color(0xFF952EE5),
       primary: const Color(0xFF952EE5),

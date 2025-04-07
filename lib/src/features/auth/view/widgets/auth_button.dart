@@ -1,5 +1,6 @@
 import 'package:movies/src/core/constants/app_sizes.dart';
 import 'package:movies/src/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:movies/src/core/view/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,19 +24,20 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.all(16),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(12),
-            ),
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.all(16),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(12),
           ),
-          foregroundColor: foregroundColor,
-          backgroundColor: backgroundColor,
-          side: borderColor == null? null : BorderSide(color: borderColor!)
         ),
-        child: child);
+        foregroundColor: foregroundColor,
+        backgroundColor: backgroundColor,
+        side: borderColor == null ? null : BorderSide(color: borderColor!),
+      ),
+      child: child,
+    );
   }
 }
 
@@ -47,8 +49,18 @@ class Googlesigninbutton extends ConsumerWidget {
     final authState = ref.watch(authViewmodelProvider);
 
     return AuthButton(
-      onPressed: () {
-        ref.read(authViewmodelProvider.notifier).googleLogin();
+      onPressed: () async {
+        final authViewmodel = ref.read(authViewmodelProvider.notifier);
+        await authViewmodel.googleLogin();
+
+        final userState = ref.read(authViewmodelProvider);
+        if (userState.hasValue && userState.value != null && context.mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const MainScreen()),
+            );
+          });
+        }
       },
       backgroundColor: Colors.white,
       foregroundColor: Colors.black87,

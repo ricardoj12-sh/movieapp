@@ -1,14 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/src/core/constants/app_sizes.dart';
+import 'package:movies/src/features/account/view/screens/history_screen.dart';
 import 'package:movies/src/features/account/view/screens/movie_grid.dart';
 import 'package:movies/src/features/account/view/widgets/list_tile.dart';
 import 'package:movies/src/features/account/viewmodel/account_viewmodel.dart';
-import 'package:movies/src/features/auth/view/screens/login_screen.dart';
+import 'package:movies/src/features/auth/view/screens/welcome_screen.dart';
 import 'package:movies/src/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:movies/src/shared/view/screens/error_screen.dart';
 import 'package:movies/src/shared/view/screens/loading_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+// 🔥 AGREGADO: importar pantalla de edición de perfil
+import 'package:movies/src/features/account/view/screens/edit_profile_screen.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -19,8 +22,9 @@ class AccountScreen extends ConsumerWidget {
 
     if (currentUser == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          (route) => false,
         );
       });
       return const LoadingScreen();
@@ -37,14 +41,17 @@ class AccountScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "User not found. Please log in again.",
-                    textAlign: TextAlign.center,
-                  ),
+                  const Text("User not found. Please log in again."),
                   gapH16,
                   ElevatedButton(
-                    onPressed: () {
-                      ref.read(authViewmodelProvider.notifier).logout();
+                    onPressed: () async {
+                      await ref.read(authViewmodelProvider.notifier).logout();
+                      if (context.mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                          (route) => false,
+                        );
+                      }
                     },
                     child: const Text("Go to Login"),
                   ),
@@ -59,8 +66,14 @@ class AccountScreen extends ConsumerWidget {
             actions: [
               TextButton.icon(
                 icon: const Icon(Icons.logout),
-                onPressed: () {
-                  ref.read(authViewmodelProvider.notifier).logout();
+                onPressed: () async {
+                  await ref.read(authViewmodelProvider.notifier).logout();
+                  if (context.mounted) {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                      (route) => false,
+                    );
+                  }
                 },
                 label: const Text('Logout'),
                 style: TextButton.styleFrom(
@@ -106,10 +119,7 @@ class AccountScreen extends ConsumerWidget {
                 ),
                 gapH32,
                 AccountListTile(
-                  leading: const Icon(
-                    Icons.favorite,
-                    color: Color(0xFFFF8888),
-                  ),
+                  leading: const Icon(Icons.favorite, color: Color(0xFFFF8888)),
                   title: 'Favorites',
                   onTap: () {
                     Navigator.of(context).push(
@@ -127,6 +137,31 @@ class AccountScreen extends ConsumerWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => MovieGrid(title: 'Watchlist', movieIds: user.watchlist),
+                      ),
+                    );
+                  },
+                ),
+                gapH8,
+                AccountListTile(
+                  leading: const Icon(Icons.history, color: Colors.grey),
+                  title: 'Recently Viewed',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const HistoryScreen(),
+                      ),
+                    );
+                  },
+                ),
+                gapH8,
+                // 🔥 AGREGADO: opción para editar perfil
+                AccountListTile(
+                  leading: const Icon(Icons.edit, color: Colors.amber),
+                  title: 'Edit Profile',
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const EditProfileScreen(),
                       ),
                     );
                   },

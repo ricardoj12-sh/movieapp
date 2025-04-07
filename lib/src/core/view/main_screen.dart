@@ -1,3 +1,4 @@
+// import 'package:movies/src/features/account/view/screens/account_screen.dart';
 import 'package:movies/src/features/account/view/screens/account_screen.dart';
 import 'package:movies/src/features/movies/view/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,10 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     Widget body;
     if (_selectedIndex == 0) {
+      print('[MainScreen] Mostrando HomeScreen');
       body = const HomeScreen();
     } else {
+      print('[MainScreen] Mostrando AccountScreen');
       body = const AccountScreen();
     }
 
